@@ -1,48 +1,11 @@
-public static final String BASE_URI = "/demo-service/v1/";
+[ERROR] Failures: 
+[ERROR]   UserServiceClientPactTest.shouldFailToCreateUserWithInvalidAge:114 
+Expecting actual throwable to be an instance of:
+  org.springframework.web.client.HttpClientErrorException
+but was:
+  org.springframework.web.client.ResourceAccessException: I/O error on POST request for "http://localhost:20999/api/users": Broken pipe
+        at org.springframework.web.client.DefaultRestClient$DefaultRequestBodyUriSpec.createResourceAccessException(DefaultRestClient.java:557)
+        at org.springframework.web.client.DefaultRestClient$DefaultRequestBodyUriSpec.exchangeInternal(DefaultRestClient.java:482)
+        at org.springframework.web.client.DefaultRestClient$DefaultRequestBodyUriSpec.retrieve(DefaultRestClient.java:444)
+        ...(84 remaining lines not displayed - this can be changed with Assertions.setMaxStackTraceElementsDisplayed)
 
-    private final WebClient webClient;
-    private final Duration requestTimeout;
-    private final int maxRequestRetryAttempts;
-
-    public UserClient(
-            WebClient.Builder webClientBuilder,
-            @Value("${service.url}") String serviceBaseUrl,
-            @Value("${service.client.timeout:10000}") int requestRetryTimeoutMs,
-            @Value("${service.client.retry.maxAttempts:5}") int maxRequestRetryAttempts) {
-
-        HttpClient httpClient =
-                HttpClient.create()
-                        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 500)
-                        .responseTimeout(Duration.ofMillis(500))
-                        .doOnConnected(
-                                conn ->
-                                        conn.addHandlerLast(new ReadTimeoutHandler(500, TimeUnit.MILLISECONDS))
-                                                .addHandlerLast(new WriteTimeoutHandler(500, TimeUnit.MILLISECONDS)));
-
-        ClientHttpConnector connector = new ReactorClientHttpConnector(httpClient);
-        this.webClient =
-                webClientBuilder
-                        .baseUrl(serviceBaseUrl)
-                        .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                        .clientConnector(connector)
-                        .build();
-
-        this.requestTimeout = Duration.ofMillis(requestRetryTimeoutMs);
-        this.maxRequestRetryAttempts = maxRequestRetryAttempts;
-    }
-    public ResponseEntity<UserDTO> createUser(
-            CreateUserCommand createUserCommand) {
-
-        MediaType mediaTypeWithCharset =
-                new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8);
-
-        return this.webClient
-                .post()
-                .uri("/api/users")
-                .contentType(mediaTypeWithCharset)
-                .bodyValue(createUserCommand)
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .toEntity(new ParameterizedTypeReference<UserDTO>() {})
-                .block();
-    }
