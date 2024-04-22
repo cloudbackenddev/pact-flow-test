@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -21,7 +20,14 @@ type RequestDefinition struct {
 	// Add other fields as needed
 }
 
-// fetchMappings fetches mappings from WireMock
+// Manifest represents the structure of the JSON manifest file
+type Manifest struct {
+	Repositories []struct {
+		URL string `json:"url"`
+	} `json:"repositories"`
+}
+
+// fetchMappings fetches mappings from a repository URL
 func fetchMappings(url string) ([]Mapping, error) {
 	response, err := http.Get(url)
 	if err != nil {
@@ -30,7 +36,7 @@ func fetchMappings(url string) ([]Mapping, error) {
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed to fetch mappings. Status code: %d", response.StatusCode)
+		return nil, fmt.Errorf("failed to fetch mappings from %s. Status code: %d", url, response.StatusCode)
 	}
 
 	var mappings []Mapping
@@ -41,51 +47,63 @@ func fetchMappings(url string) ([]Mapping, error) {
 	return mappings, nil
 }
 
-// updateMappings updates mappings in WireMock
-func updateMappings(url string, mappings []Mapping) error {
-	mappingsJSON, err := json.Marshal(mappings)
+func main() {
+	// Read repository URLs from JSON manifest file
+	manifestFile := "manifest.json"
+	manifestData, err := ioutil.ReadFile(manifestFile)
 	if err != nil {
-		return err
+		fmt.Println("Error reading manifest file:", err)
+		return
 	}
 
-	response, err := http.Put(url, "application/json", bytes.NewReader(mappingsJSON))
+	var manifest Manifest
+	if err := json.Unmarshal(manifestData, &manifest); err != nil {
+		fmt.Println("Error parsing JSON manifest:", err)
+		return
+	}
+
+	// URL of WireMock's admin API to delete all mappings
+	adminURL := "http://localhost:8080/__admin/mappings"
+
+	// Delete all existing mappings
+	request, err := http.NewRequest(http.MethodDelete, adminURL, nil)
 	if err != nil {
-		return err
+		fmt.Println("Error creating delete request:", err)
+		return
+	}
+
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		fmt.Println("Error deleting mappings:", err)
+		return
 	}
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		return fmt.Errorf("failed to update mappings. Status code: %d", response.StatusCode)
-	}
-
-	fmt.Println("Mappings updated successfully.")
-	return nil
-}
-
-func main() {
-	// URL of WireMock's mappings endpoint
-	wiremockURL := "http://localhost:8080/__admin/mappings"
-
-	// Fetch existing mappings
-	existingMappings, err := fetchMappings(wiremockURL)
-	if err != nil {
-		fmt.Println("Error fetching mappings:", err)
+		fmt.Printf("Failed to delete mappings. Status code: %d\n", response.StatusCode)
 		return
 	}
 
-	// Assuming you have other arrays of mappings to merge
-	// mappings1 := fetchMappings(someOtherURL)
-	// mappings2 := fetchMappings(yetAnotherURL)
+	fmt.Println("All mappings deleted successfully.")
 
-	// Merge mappings (assuming mappings1 and mappings2 are fetched from somewhere)
-	// mergedMappings := append(existingMappings, mappings1...)
-	// mergedMappings = append(mergedMappings, mappings2...)
+	// Import mappings from each repository
+	for _, repo := range manifest.Repositories {
+		mappings, err := fetchMappings(repo.URL)
+		if err != nil {
+			fmt.Printf("Error fetching mappings from %s: %v\n", repo.URL, err)
+			continue
+		}
 
-	// Update WireMock with merged mappings
-	// err = updateMappings(wiremockURL, mergedMappings)
-	err = updateMappings(wiremockURL, existingMappings)
-	if err != nil {
-		fmt.Println("Error updating mappings:", err)
-		return
+		// Import fetched mappings to WireMock
+		// Uncomment the following lines to import mappings
+		/*
+			importURL := "http://localhost:8080/__admin/mappings/import"
+			err = importMappings(importURL, mappings)
+			if err != nil {
+				fmt.Printf("Error importing mappings from %s: %v\n", repo.URL, err)
+				continue
+			}
+		*/
+		fmt.Printf("Mappings from %s imported successfully.\n", repo.URL)
 	}
 }
