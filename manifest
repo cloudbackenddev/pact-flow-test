@@ -1,0 +1,7 @@
+{
+  "repositories": [
+    {"url": "http://repo1.example.com/mappings"},
+    {"url": "http://repo2.example.com/mappings"}
+    // Add more repository URLs as needed
+  ]
+}
