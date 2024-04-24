@@ -1,3 +1,7 @@
+spring.cloud.gateway.globalcors.corsConfigurations.[/**].allowedOrigins=*
+spring.cloud.gateway.globalcors.corsConfigurations.[/**].allowedMethods=GET,POST,PUT,OPTIONS
+spring.cloud.gateway.globalcors.corsConfigurations.[/**].allowCredentials=true
+
 [ERROR] Failures: 
 [ERROR]   UserServiceClientPactTest.shouldFailToCreateUserWithInvalidAge:114 
 Expecting actual throwable to be an instance of:
