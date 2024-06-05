@@ -37,3 +37,5 @@ case $( "${UNAME}" | tr '[:upper:]' '[:lower:]') in
     ;;
 esac
 
+https://grafana.com/grafana/dashboards/18812-jvm-overview-opentelemetry/?source=post_page-----c9ecb100998e--------------------------------
+
