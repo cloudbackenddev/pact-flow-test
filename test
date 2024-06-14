@@ -93,3 +93,26 @@ logback-spring.xml
     </root>
 
 </configuration>
+
+
+Could not map input to requested parameter type: class java.io.InputStream: java.lang.IllegalStateException
+java.lang.IllegalStateException: Could not map input to requested parameter type: class java.io.InputStream
+	at io.opentelemetry.instrumentation.awslambdaevents.v2_2.TracingRequestWrapper.map(TracingRequestWrapper.java:35)
+	at io.opentelemetry.instrumentation.awslambdaevents.v2_2.LambdaParameters.toArray(LambdaParameters.java:24)
+	at io.opentelemetry.instrumentation.awslambdaevents.v2_2.TracingRequestWrapperBase.doHandleRequest(TracingRequestWrapperBase.java:65)
+	at io.opentelemetry.instrumentation.awslambdacore.v1_0.TracingRequestHandler.handleRequest(TracingRequestHandler.java:79)
+Caused by: java.lang.IllegalArgumentException: Cannot construct instance of `java.io.InputStream` (no Creators, like default constructor, exist): abstract types either need to be mapped to concrete types, have custom deserializer, or contain additional type information
+ at [Source: UNKNOWN; byte offset: #UNKNOWN]
+	at com.fasterxml.jackson.databind.ObjectMapper._convert(ObjectMapper.java:4544)
+	at com.fasterxml.jackson.databind.ObjectMapper.convertValue(ObjectMapper.java:4475)
+	at io.opentelemetry.instrumentation.awslambdaevents.v2_2.TracingRequestWrapper.map(TracingRequestWrapper.java:33)
+	... 3 more
+Caused by: com.fasterxml.jackson.databind.exc.InvalidDefinitionException: Cannot construct instance of `java.io.InputStream` (no Creators, like default constructor, exist): abstract types either need to be mapped to concrete types, have custom deserializer, or contain additional type information
+ at [Source: UNKNOWN; byte offset: #UNKNOWN]
+	at com.fasterxml.jackson.databind.exc.InvalidDefinitionException.from(InvalidDefinitionException.java:67)
+	at com.fasterxml.jackson.databind.DeserializationContext.reportBadDefinition(DeserializationContext.java:1915)
+	at com.fasterxml.jackson.databind.DatabindContext.reportBadDefinition(DatabindContext.java:414)
+	at com.fasterxml.jackson.databind.DeserializationContext.handleMissingInstantiator(DeserializationContext.java:1360)
+	at com.fasterxml.jackson.databind.deser.AbstractDeserializer.deserialize(AbstractDeserializer.java:274)
+	at com.fasterxml.jackson.databind.ObjectMapper._convert(ObjectMapper.java:4539)
+	... 5 more
