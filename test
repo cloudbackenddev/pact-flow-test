@@ -94,6 +94,9 @@ logback-spring.xml
 
 </configuration>
 
+https://aws-otel.github.io/docs/getting-started/lambda/lambda-java
+https://github.com/open-telemetry/opentelemetry-lambda/issues/270
+
 OTEL_INSTRUMENTATION_COMMON_DEFAULT_ENABLED=true
 OPENTELEMETRY_COLLECTOR_CONFIG_FILE: "/var/task/collector.yaml"
 AWS_LAMBDA_EXEC_WRAPPER=/opt/otel-handler
