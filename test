@@ -94,6 +94,14 @@ logback-spring.xml
 
 </configuration>
 
+OTEL_INSTRUMENTATION_COMMON_DEFAULT_ENABLED=true
+OPENTELEMETRY_COLLECTOR_CONFIG_FILE: "/var/task/collector.yaml"
+AWS_LAMBDA_EXEC_WRAPPER=/opt/otel-handler
+OTEL_SERVICE_NAME: "demo-fn"
+OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=dev"
+OTEL_EXPORTER_OTLP_PROTOCOL=http/json 
+OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
+
 
 Could not map input to requested parameter type: class java.io.InputStream: java.lang.IllegalStateException
 java.lang.IllegalStateException: Could not map input to requested parameter type: class java.io.InputStream
